@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Samiti - Management Pro</title>
+    
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;600;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
+
+    <style>
+        :root {
+            --primary: #FFD700;
+            --secondary: #FF8C00;
+            --dark: #121212;
+            --white: #FFFFFF;
+            --gray: #F4F4F9;
+        }
+
+        body { font-family: 'Hind Siliguri', 'Poppins', sans-serif; background-color: var(--gray); color: var(--dark); margin: 0; }
+        .premium-grad { background: linear-gradient(135deg, var(--primary), var(--secondary)); }
+        .dark-grad { background: linear-gradient(135deg, #222, #000); color: var(--primary); }
+        
+        .glass-card { background: white; border-radius: 25px; box-shadow: 0 8px 30px rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.02); }
+        .input-box { background: #eee !important; border: 2px solid transparent !important; padding: 12px 16px; border-radius: 15px; width: 100%; outline: none; transition: 0.3s; }
+        .input-box:focus { border-color: var(--secondary) !important; background: white !important; }
+
+        .hidden { display: none; }
+        .nav-item { color: #999; transition: 0.3s; cursor: pointer; text-align: center; font-size: 10px; }
+        .nav-active { color: var(--secondary); font-weight: bold; }
+
+        /* Photo Upload Preview */
+        #profile-preview { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 3px solid var(--primary); }
+        
+        /* Mobile Scrollbar hide */
+        ::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body>
+
+    <!-- 1. LOGIN SYSTEM -->
+    <div id="login-page" class="min-h-screen flex flex-col items-center justify-center p-6 bg-white">
+        <!-- Aesthetic Logo -->
+        <div class="mb-6">
+            <svg width="70" height="70" viewBox="0 0 100 100">
+                <rect x="10" y="10" width="80" height="80" rx="20" fill="black"/>
+                <path d="M30 70 L50 30 L70 70" stroke="#FFD700" stroke-width="8" fill="none" stroke-linecap="round"/>
+                <circle cx="50" cy="50" r="10" fill="#FF8C00"/>
+            </svg>
+        </div>
+        
+        <div class="w-full max-w-sm">
+            <h1 class="text-3xl font-black text-center mb-6">Smart Samiti</h1>
+            
+            <!-- Login Tabs -->
+            <div class="flex border-b mb-6">
+                <button onclick="switchLogin('member')" id="btn-tab-member" class="flex-1 py-2 font-bold border-b-2 border-orange-500">সদস্য</button>
+                <button onclick="switchLogin('admin')" id="btn-tab-admin" class="flex-1 py-2 font-bold text-gray-400">এডমিন</button>
+            </div>
+
+            <div id="login-form" class="space-y-4">
+                <input type="text" id="user-id" placeholder="ইমেইল বা সদস্য নং" class="input-box">
+                <div class="relative">
+                    <input type="password" id="user-pass" placeholder="পাসওয়ার্ড" class="input-box">
+                    <i class="fas fa-eye absolute right-4 top-4 text-gray-400" onclick="togglePass()"></i>
+                </div>
+                <button onclick="handleLogin()" class="dark-grad w-full py-4 rounded-2xl font-bold shadow-xl">লগইন করুন</button>
+            </div>
+
+            <div class="mt-6 text-center text-xs text-gray-400">
+                পাসওয়ার্ড ভুলে গেছেন? <span class="text-orange-500 font-bold cursor-pointer" onclick="showRecovery()">রিকভার করুন</span>
+            </div>
+            
+            <div class="mt-6 text-center text-sm">
+                নতুন সমিতি? <span class="text-orange-500 font-bold cursor-pointer underline" onclick="showSection('register')">আবেদন করুন</span>
+            </div>
+        </div>
+        <div class="fixed bottom-4 right-4 text-[10px] text-gray-300 underline cursor-pointer" onclick="alert('Super Admin Login Support')">Administrator Login</div>
+    </div>
+
+    <!-- 2. MAIN APP -->
+    <div id="main-app" class="hidden min-h-screen">
+        <!-- Header -->
+        <header class="p-5 flex justify-between items-center bg-white sticky top-0 z-50 shadow-sm">
+            <div class="flex items-center gap-3">
+                <img id="header-img" src="https://via.placeholder.com/40" class="w-10 h-10 rounded-full border-2 border-yellow-400">
+                <div>
+                    <h2 class="font-bold text-sm leading-none" id="user-display-name">লোড হচ্ছে...</h2>
+                    <span id="user-role-badge" class="text-[9px] uppercase font-bold text-orange-500">সদস্য</span>
+                </div>
+            </div>
+            <div class="flex items-center gap-3">
+                <button class="bg-black text-white text-[10px] px-2 py-1 rounded">BN/EN</button>
+                <i class="fas fa-sign-out-alt text-gray-400" onclick="location.reload()"></i>
+            </div>
+        </header>
+
+        <main class="p-5 pb-24">
+            
+            <!-- MEMBER VIEW: Joma Taka -->
+            <div id="view-member" class="space-y-6">
+                <div class="premium-grad p-6 rounded-[30px] text-black shadow-lg">
+                    <p class="text-xs font-bold opacity-70">আমার মোট জমা</p>
+                    <h2 class="text-4xl font-black">৳ <span id="total-savings">৫,৪০০</span></h2>
+                    <div class="mt-4 flex justify-between text-[10px] font-bold bg-white/20 p-2 rounded-lg">
+                        <span>বিকাশ: ৳ ৩০০০</span>
+                        <span>ক্যাশ: ৳ ২৪০০</span>
+                    </div>
+                </div>
+                
+                <h3 class="font-bold">সাম্প্রতিক জমা তালিকা</h3>
+                <div id="member-history" class="space-y-3">
+                    <!-- Data will load here -->
+                    <div class="glass-card p-4 flex justify-between items-center">
+                        <div>
+                            <p class="font-bold text-sm">জানুয়ারি, ২০২৪</p>
+                            <p class="text-[10px] text-gray-400">১০ তারিখ | বিকাশ</p>
+                        </div>
+                        <p class="font-bold text-green-600">৳ ৫০০</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ADMIN VIEW: Manage Members -->
+            <div id="view-admin" class="hidden space-y-6">
+                <div class="flex justify-between items-center">
+                    <h3 class="font-bold text-xl">সদস্য তালিকা</h3>
+                    <button onclick="showSection('add-member')" class="bg-black text-yellow-400 px-4 py-2 rounded-xl text-xs font-bold">+ সদস্য যোগ</button>
+                </div>
+                <div id="admin-member-list" class="space-y-3">
+                    <!-- Admin will see list with edit options -->
+                </div>
+            </div>
+
+            <!-- SUPER ADMIN VIEW -->
+            <div id="view-super" class="hidden space-y-6">
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="glass-card p-5 text-center">
+                        <p class="text-[10px] text-gray-400">মোট সমিতি</p>
+                        <h4 class="text-2xl font-bold">১২</h4>
+                    </div>
+                    <div class="glass-card p-5 text-center">
+                        <p class="text-[10px] text-gray-400">মোট সদস্য</p>
+                        <h4 class="text-2xl font-bold">৪৫০</h4>
+                    </div>
+                </div>
+                <div class="glass-card p-5">
+                    <h4 class="font-bold mb-4">সমিতি ওভারভিউ</h4>
+                    <div id="samiti-master-list" class="space-y-2 text-xs">
+                        <!-- Super Admin View -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- PROFILE EDIT SECTION (Common) -->
+            <div id="view-profile" class="hidden space-y-6">
+                <h3 class="font-bold text-xl text-center">প্রোফাইল এডিট</h3>
+                <div class="flex flex-col items-center">
+                    <img id="profile-preview" src="https://via.placeholder.com/100">
+                    <input type="file" id="photo-input" accept="image/*" class="hidden" onchange="processImage(event)">
+                    <button onclick="document.getElementById('photo-input').click()" class="mt-2 text-xs font-bold text-orange-500 underline">ছবি পরিবর্তন</button>
+                    <p class="text-[8px] text-gray-400 mt-1">অটোমেটিক ২০ কেবি সাইজ হবে</p>
+                </div>
+                <input type="text" id="edit-name" placeholder="আপনার নাম" class="input-box">
+                <button onclick="saveProfile()" class="dark-grad w-full py-4 rounded-2xl font-bold shadow-xl">সংরক্ষণ করুন</button>
+            </div>
+
+        </main>
+
+        <!-- Bottom Nav -->
+        <nav class="fixed bottom-0 w-full bg-white border-t flex justify-around py-4 z-50">
+            <div onclick="showTab('home')" class="nav-item nav-active" id="nav-home"><i class="fas fa-home text-xl"></i><p>হোম</p></div>
+            <div onclick="showTab('members')" class="nav-item" id="nav-members"><i class="fas fa-users text-xl"></i><p>সদস্য</p></div>
+            <div onclick="showTab('profile')" class="nav-item" id="nav-profile"><i class="fas fa-user-circle text-xl"></i><p>প্রোফাইল</p></div>
+        </nav>
+    </div>
+
+    <!-- 3. RECOVERY MODAL -->
+    <div id="recovery-page" class="hidden fixed inset-0 bg-white z-[100] p-8 flex flex-col items-center justify-center">
+        <h2 class="text-2xl font-bold mb-4">পাসওয়ার্ড রিকভার</h2>
+        <input type="number" id="rec-phone" placeholder="ফোন নাম্বার দিন" class="input-box mb-4">
+        <button onclick="location.reload()" class="dark-grad w-full py-3 rounded-xl">রিকভারি রিকোয়েস্ট পাঠান</button>
+    </div>
+
+    <script>
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbybngea_JvvvuaVe_75Oi9q_yfU8VFgO_g9mOq_KfPgZgRtyMdC7IehiaLa4Ejvj7MW/exec";
+        
+        let currentUser = null;
+        let loginType = 'member';
+
+        // ১. ইমেজ কম্প্রেশন লজিক (Max 20KB)
+        function processImage(event) {
+            const file = event.target.files[0];
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    let width = img.width;
+                    let height = img.height;
+                    
+                    // Resize logic to compress
+                    const max_size = 300; 
+                    if (width > height) { if (width > max_size) { height *= max_size / width; width = max_size; } } 
+                    else { if (height > max_size) { width *= max_size / height; height = max_size; } }
+                    
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+                    
+                    // Quality 0.5 to keep it around 20KB
+                    const dataUrl = canvas.toDataURL('image/jpeg', 0.5);
+                    document.getElementById('profile-preview').src = dataUrl;
+                    document.getElementById('header-img').src = dataUrl;
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // ২. লগইন লজিক
+        function switchLogin(type) {
+            loginType = type;
+            document.getElementById('btn-tab-member').className = type === 'member' ? 'flex-1 py-2 font-bold border-b-2 border-orange-500' : 'flex-1 py-2 font-bold text-gray-400';
+            document.getElementById('btn-tab-admin').className = type === 'admin' ? 'flex-1 py-2 font-bold border-b-2 border-orange-500' : 'flex-1 py-2 font-bold text-gray-400';
+        }
+
+        function handleLogin() {
+            const id = document.getElementById('user-id').value;
+            const pass = document.getElementById('user-pass').value;
+
+            // সুপার এডমিন (আপনি)
+            if(id === "abdulazizhridoy2936@gmail.com" && pass === "Md1788693%#L") {
+                startApp("Super Admin", "আব্দুল আজিজ");
+            } 
+            // সমিতি এডমিন
+            else if(id === "alokitoobaganbazar@gmail.com" && pass === "12345678") {
+                startApp("Admin", "ব বাগানবাজার এডমিন");
+            } 
+            // মেম্বার
+            else if(id === "1" && pass === "12345678") {
+                startApp("Member", "সদস্য ১");
+            } else {
+                alert("ভুল আইডি বা পাসওয়ার্ড!");
+            }
+        }
+
+        function startApp(role, name) {
+            currentUser = { role, name };
+            document.getElementById('login-page').classList.add('hidden');
+            document.getElementById('main-app').classList.remove('hidden');
+            document.getElementById('user-display-name').innerText = name;
+            document.getElementById('user-role-badge').innerText = role;
+
+            // রোল অনুযায়ী ভিউ কন্ট্রোল
+            document.getElementById('view-member').classList.add('hidden');
+            document.getElementById('view-admin').classList.add('hidden');
+            document.getElementById('view-super').classList.add('hidden');
+
+            if(role === "Member") document.getElementById('view-member').classList.remove('hidden');
+            if(role === "Admin") document.getElementById('view-admin').classList.remove('hidden');
+            if(role === "Super Admin") document.getElementById('view-super').classList.remove('hidden');
+        }
+
+        // ৩. ট্যাব সুইচিং
+        function showTab(tab) {
+            const role = currentUser.role;
+            document.getElementById('view-member').classList.add('hidden');
+            document.getElementById('view-admin').classList.add('hidden');
+            document.getElementById('view-super').classList.add('hidden');
+            document.getElementById('view-profile').classList.add('hidden');
+
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('nav-active'));
+            document.getElementById('nav-' + tab).classList.add('nav-active');
+
+            if(tab === 'home') {
+                if(role === "Member") document.getElementById('view-member').classList.remove('hidden');
+                if(role === "Admin") document.getElementById('view-admin').classList.remove('hidden');
+                if(role === "Super Admin") document.getElementById('view-super').classList.remove('hidden');
+            } else if(tab === 'members') {
+                document.getElementById('view-admin').classList.remove('hidden'); // সব রোলই মেম্বার লিস্ট দেখতে পারে
+            } else if(tab === 'profile') {
+                document.getElementById('view-profile').classList.remove('hidden');
+            }
+        }
+
+        // ৪. ডেটা পাঠানো (Google Script)
+        async function saveProfile() {
+            const photo = document.getElementById('profile-preview').src;
+            const name = document.getElementById('edit-name').value;
+            
+            const payload = {
+                action: 'update_profile',
+                name: name,
+                photo: photo,
+                user: currentUser.name
+            };
+
+            alert("প্রোফাইল আপডেট হচ্ছে...");
+            
+            try {
+                await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    body: JSON.stringify(payload)
+                });
+                alert("সফলভাবে সংরক্ষিত হয়েছে!");
+            } catch (e) {
+                alert("গুগল ড্রাইভ কানেকশনে সমস্যা!");
+            }
+        }
+
+        function togglePass() {
+            const x = document.getElementById("user-pass");
+            x.type = x.type === "password" ? "text" : "password";
+        }
+
+        function showRecovery() { document.getElementById('recovery-page').classList.remove('hidden'); }
+
+    </script>
+</body>
+</html>
